@@ -61,11 +61,11 @@ fun SearchScreen(searchViewModel: SearchViewModel){
     //val response=  searchViewModel.convertJsonStringToObject(json_string)
   val suggestedDestinations  by searchViewModel.suggestedDestinations.collectAsState()
 
-    val list=searchViewModel.todoItems.value
+   // val list=searchViewModel.todoItems.value
 
   // Log.w("TAG", "SearchScreen: SSS ${suggestedDestinations.carList} ", )
         ItemList(
-            suggestedDestinations.carList!!
+            searchViewModel.todoItems!!
         , listOf("Red","Blue","Green","Yellow"), onButtonSearchClicked ={searchViewModel.searchForAvailableCar(it,json_string)}
     )
 

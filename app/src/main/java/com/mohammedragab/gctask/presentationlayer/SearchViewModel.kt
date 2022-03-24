@@ -28,18 +28,19 @@ class SearchViewModel: ViewModel() {
     private val _suggestedDestinations = MutableStateFlow<SearchStatus>(SearchStatus(null,null))
     val suggestedDestinations: MutableStateFlow<SearchStatus>
         get() = _suggestedDestinations
-
-    var todoItems = mutableStateOf<SearchStatus>(SearchStatus(null,null))
+    var todoItems = mutableStateListOf<Carmodel>()
         private set
+//    var todoItems = mutableStateOf<SearchStatus>(SearchStatus(null,null))
+//        private set
 
     // event: addItem
     fun searchForAvailableCar(item: SearchRequest,json:String) {
-
         viewModelScope.launch {
             val responseSuccess=convertJsonStringToObject(json)
             if (responseSuccess!=null){
                 when(responseSuccess.status?.code){
                     200->{
+                        //todoItems.removeAll(carsFilterList)
                         if (item.unitPrice!!.length!=0){
                             Log.w("", "searchForAvailableCar:1 ${responseSuccess.cars} " )
                            val carsFilterList= responseSuccess.cars?.let {
@@ -47,7 +48,9 @@ class SearchViewModel: ViewModel() {
                            }
                             Log.w("TAG", "TV: ${carsFilterList}")
                            // todoItems.value=SearchStatus(carsFilterList,null)
-                            _suggestedDestinations.value=SearchStatus(carsFilterList,null)
+                            todoItems.addAll(carsFilterList!!)
+
+                            // _suggestedDestinations.value=SearchStatus(carsFilterList,null)
                         }
 
 
@@ -75,7 +78,8 @@ class SearchViewModel: ViewModel() {
             if (responseSuccess!=null){
                 when(responseSuccess.status?.code){
                     200->{
-                        _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
+                       // _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
+                        todoItems.addAll(responseSuccess.cars!!)
 
 
 
