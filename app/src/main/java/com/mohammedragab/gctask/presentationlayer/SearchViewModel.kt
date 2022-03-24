@@ -1,10 +1,13 @@
 package com.mohammedragab.gctask.presentationlayer
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.mohammedragab.gctask.data.Carmodel
 import com.mohammedragab.gctask.data.CarsResponse
@@ -13,6 +16,7 @@ import com.mohammedragab.gctask.data.SearchStatus.GenralStatus
 import com.mohammedragab.gctask.data.SearchStatus.SearchStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -22,51 +26,74 @@ class SearchViewModel: ViewModel() {
 //    private var _availableCarList= MutableLiveData(SearchStatus())
 //    val availableCarList: LiveData<SearchStatus> = _availableCarList
     private val _suggestedDestinations = MutableStateFlow<SearchStatus>(SearchStatus(null,null))
-    val suggestedDestinations: StateFlow<SearchStatus>
+    val suggestedDestinations: MutableStateFlow<SearchStatus>
         get() = _suggestedDestinations
 
-    var todoItems = mutableListOf<Carmodel>()
+    var todoItems = mutableStateOf<SearchStatus>(SearchStatus(null,null))
         private set
 
     // event: addItem
     fun searchForAvailableCar(item: SearchRequest,json:String) {
-        Log.w("TAG", "searchForAvailableCar1 : ${item}")
 
-        Log.w("TAG", "searchForAvailableCar: ${item.unitPrice} , ${item.color}")
-        val responseSuccess=convertJsonStringToObject(json)
-        Log.w("TAG", "searchForAvailableCar1  jsonresponse : ${json}")
+        viewModelScope.launch {
+            val responseSuccess=convertJsonStringToObject(json)
+            if (responseSuccess!=null){
+                when(responseSuccess.status?.code){
+                    200->{
+                        if (item.unitPrice!!.length!=0){
+                            Log.w("", "searchForAvailableCar:1 ${responseSuccess.cars} " )
+                           val carsFilterList= responseSuccess.cars?.let {
+                               it.filter { it.unit_price.toString().contains(item.unitPrice) }
+                           }
+                            Log.w("TAG", "TV: ${carsFilterList}")
+                           // todoItems.value=SearchStatus(carsFilterList,null)
+                            _suggestedDestinations.value=SearchStatus(carsFilterList,null)
+                        }
 
 
-        Log.w("TAG", "searchForAvailableCar1  response : ${responseSuccess}")
+                    }
+                    204->{
+                        _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
 
-        if (responseSuccess!=null){
-            Log.w("TAG", "responseSuccess1 : ${responseSuccess.status?.code}")
-
-            when(responseSuccess.status?.code){
-                200->{
-                    if (!item.unitPrice.isNullOrEmpty()){
-                        Log.w("TAG", "responseSuccess2 : ${responseSuccess.status?.code}")
-                        _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
-                        todoItems.addAll(responseSuccess.cars!!)
-                    }else{
-                        Log.w("TAG", "responseSuccess3 : ${responseSuccess.status?.code}")
-                        todoItems.addAll(responseSuccess.cars!!)
-
-                        _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
+                    }
+                    else->{
 
                     }
 
                 }
-                204->{
-                    _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
-
-                }
-                else->{
-
-                }
-
             }
         }
+
+
+
+    }
+    //
+    fun getAlCarAvailble(json:String) {
+
+        viewModelScope.launch {
+            val responseSuccess=convertJsonStringToObject(json)
+            if (responseSuccess!=null){
+                when(responseSuccess.status?.code){
+                    200->{
+                        _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
+
+
+
+                    }
+                    204->{
+                        _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
+
+                    }
+                    else->{
+
+                    }
+
+                }
+            }
+        }
+
+
+
     }
     suspend fun  readData(){
 

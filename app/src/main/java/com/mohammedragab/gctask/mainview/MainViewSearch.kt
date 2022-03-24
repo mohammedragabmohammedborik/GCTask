@@ -95,13 +95,9 @@ fun ItemContent(carmodel: Carmodel){
 @Composable
 fun ItemList(carModelList:List<Carmodel>,colorList:List<String>, onButtonSearchClicked: (SearchRequest) -> Unit) {
     Column(
-        // we are using column to align our
-        // imageview to center of the screen.
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()){
-       // ColorSelection(listOf())
-        TxtField()
         TodoItemEntryInput(colorList = colorList, onButtonSearchClicked = onButtonSearchClicked)
 
         LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
@@ -113,85 +109,15 @@ fun ItemList(carModelList:List<Carmodel>,colorList:List<String>, onButtonSearchC
     }
 
 }
-    @Composable
-    fun TxtField() {
-        // we are creating a variable for
-        // getting a value of our text field.
-        Column(
-            // we are using column to align our
-            // imageview to center of the screen.
-            modifier = Modifier,
-
-            // below line is used for specifying
-            // vertical arrangement.
-            verticalArrangement = Arrangement.Top)
-        {
-           // TextFieldValue()
-            var text by rememberSaveable { mutableStateOf("text") }
-
-            TextField(
-                value = text,
-                onValueChange = {
-                    text = it
-                },
-                label = { Text("search with price") }
-            ,
-                placeholder = { Text(text = "search with price1") }
-            , modifier = Modifier
-                    .padding(all = 16.dp)
-            ,keyboardOptions=KeyboardOptions(keyboardType = KeyboardType.Number)
-
-            )
-
-        }
-    }
 
 @Composable
-fun DropDownList(
-    list: List<String>,
-    selectedString: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column() {
-
-    }
-    Button(onClick = { expanded = !expanded }){
-        Text ("DropDown")
-        Icon(
-            imageVector = Icons.Filled.ArrowDropDown,
-            contentDescription = null,
-        )
-    }
-    DropdownMenu(
-        modifier = Modifier.fillMaxWidth(),
-        expanded = false,
-        onDismissRequest = { expanded=false },
-    ) {
-        list.forEach {
-            DropdownMenuItem(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    expanded=false
-                    selectedString(it)
-                }
-            ) {
-                Text(it, modifier = Modifier.padding(8.dp))
-            }
-        }
-    }
-}
-@Composable
-fun TodoItemEntryInput(colorList:List<String>, onButtonSearchClicked: (SearchRequest) -> Unit, buttonText: String = "Add") {
+fun TodoItemEntryInput(colorList:List<String>, onButtonSearchClicked: (SearchRequest) -> Unit, buttonText: String = "Search") {
     val (text, onTextChange) = rememberSaveable { mutableStateOf("") }
     val (selectedColor,onSelectedItem) = rememberSaveable{ mutableStateOf("SelectColor") }
-
-    Log.w("TAG", "TodoItemEntryInput: $text ....$onTextChange" )
     val submit = {
         onButtonSearchClicked(SearchRequest(text, selectedColor))
-            onTextChange("")
+         //   onTextChange("")
         onSelectedItem("SelectColor")
-
     }
     Row(Modifier.fillMaxWidth()) {
         SearchInputPrice(
@@ -202,8 +128,6 @@ fun TodoItemEntryInput(colorList:List<String>, onButtonSearchClicked: (SearchReq
         )
         ColorSelection(colorList = colorList,selectedColor=selectedColor, onSelectedItem = onSelectedItem)
         SearchButton(modifier =Modifier.weight(1f),onClick = submit, text = buttonText, enabled = true)
-
-
     }
 }
 
@@ -229,11 +153,8 @@ fun SearchInputPrice(
 @Composable
 fun ColorSelection(colorList:List<String>,selectedColor:String,onSelectedItem:(String)->Unit){
   //  var selected by remember { mutableStateOf("DropDown") }
-
     Column() {
         var expanded by remember { mutableStateOf(false) }
-
-        val suggestions = listOf("Item1", "Item2", "Item3")
 
         Button( onClick = { expanded = !expanded }){
             Text (selectedColor)

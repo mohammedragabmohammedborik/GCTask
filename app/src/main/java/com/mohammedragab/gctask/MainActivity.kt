@@ -55,16 +55,20 @@ fun SearchScreen(searchViewModel: SearchViewModel){
     val json_string = LocalContext.current.resources.assets.open("cars_success.json").bufferedReader().use{
         it.readText()
     }
-  //val response=  searchViewModel.convertJsonStringToObject(json_string)
- //   val suggestedDestinations = searchViewModel.suggestedDestinations.collectAsState().value
 
+    searchViewModel.getAlCarAvailble(json_string)
 
-  searchViewModel.searchForAvailableCar(SearchRequest("",""),json_string)
-    //Log.w("TAG", "SearchScreen: ${suggestedDestinations.carList} ", )
+    //val response=  searchViewModel.convertJsonStringToObject(json_string)
+  val suggestedDestinations  by searchViewModel.suggestedDestinations.collectAsState()
 
-    ItemList(searchViewModel.todoItems
-        , listOf("Red","Blue","Red"), onButtonSearchClicked ={searchViewModel.searchForAvailableCar(it,json_string)}
+    val list=searchViewModel.todoItems.value
+
+  // Log.w("TAG", "SearchScreen: SSS ${suggestedDestinations.carList} ", )
+        ItemList(
+            suggestedDestinations.carList!!
+        , listOf("Red","Blue","Green","Yellow"), onButtonSearchClicked ={searchViewModel.searchForAvailableCar(it,json_string)}
     )
+
 }
 
 @Preview(showBackground = true)
