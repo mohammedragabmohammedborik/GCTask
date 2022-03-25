@@ -2,6 +2,10 @@
     <string name="app_name">GCTask</string>
     <string name="unit_price">"Price: "</string>
     <string name="car_color">"Color: "</string>
+    <string name="currency">"Currency: "</string>
+    <string name="model">"Model: "</string>
+    <string name="plate_number">"PlateNumber: "</string>
+    <string name="car_model_details">CarModelDetails</string>
 
 
 </resources>

@@ -1,7 +1,6 @@
 package com.mohammedragab.gctask.mainview
 import android.util.Log
 import com.mohammedragab.gctask.R
-
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -25,10 +24,12 @@ import com.mohammedragab.gctask.data.SearchRequest
 
 
 @Composable
-fun CarItem(carmodel: Carmodel){
+fun CarItem(carmodel: Carmodel,onclick:()->Unit){
     Card(
         backgroundColor = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp).
+        clickable(onClick = onclick)
+
     ) {
         ItemContent(carmodel)
     }
@@ -52,10 +53,7 @@ fun ItemContent(carmodel: Carmodel){
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(12.dp)
-                .clickable(onClick = {
-
-                })
+                .padding(8.dp)
 
         ) {
             Text(
@@ -93,7 +91,8 @@ fun ItemContent(carmodel: Carmodel){
 }
 
 @Composable
-fun ItemList(carModelList:List<Carmodel>,colorList:List<String>, onButtonSearchClicked: (SearchRequest) -> Unit) {
+fun ItemList(carModelList:List<Carmodel>,colorList:List<String>,
+             onButtonSearchClicked: (SearchRequest) -> Unit,onItemClicked: (Carmodel,String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,7 +102,9 @@ fun ItemList(carModelList:List<Carmodel>,colorList:List<String>, onButtonSearchC
         LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
 
             items(items = carModelList) { carModel ->
-                CarItem(carmodel = carModel)
+                CarItem(carmodel = carModel, onclick ={onItemClicked(carModel,
+                                   "CarModelDetails"
+                                ) })
             }
         }
     }
@@ -115,11 +116,10 @@ fun TodoItemEntryInput(colorList:List<String>, onButtonSearchClicked: (SearchReq
     val (text, onTextChange) = rememberSaveable { mutableStateOf("") }
     val (selectedColor,onSelectedItem) = rememberSaveable{ mutableStateOf("SelectColor") }
 
-   // val (x,y)=rememberSaveable { mutableStateOf("") }
     val submit = {
         onButtonSearchClicked(SearchRequest(text, selectedColor))
          //   onTextChange("")
-        onSelectedItem("SelectColor")
+       // onSelectedItem("SelectColor")
     }
     Row(Modifier.fillMaxWidth()) {
         SearchInputPrice(

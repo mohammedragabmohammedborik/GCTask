@@ -29,30 +29,50 @@ import java.io.InputStreamReader
 class SearchViewModel: ViewModel() {
 //    private var _availableCarList= MutableLiveData(SearchStatus())
 //    val availableCarList: LiveData<SearchStatus> = _availableCarList
-    private val _suggestedDestinations = MutableStateFlow<SearchStatus>(SearchStatus(null,null))
-    val suggestedDestinations: MutableStateFlow<SearchStatus>
-        get() = _suggestedDestinations
-    var todoItems = mutableStateListOf<Carmodel>()
+    var carsmodelList = mutableStateListOf<Carmodel>()
         private set
-//    var todoItems = mutableStateOf<SearchStatus>(SearchStatus(null,null))
-//        private set
+    var carmodelsState = mutableStateOf<Carmodel>(Carmodel("","","",0,"",0.0))
+        private set
+    var screenNameState= mutableStateOf<String>("")
 
     // event: addItem
     fun searchForAvailableCar(item: SearchRequest,json:String) {
         viewModelScope.launch {
             Log.w("TAG", "TV: ${item}")
 
+          var   carsFilterList= listOf<Carmodel>()
 
-           // if (item.unitPrice!!.length!=0 || item.color!="SelectColor"){
+            // search with price and color
+            if (item.unitPrice!!.length!=0 && item.color!="SelectColor"){
                 
-                val carsFilterList= getAlCarAvailble(json).let {list->
-                    list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!)||it.color.contains(item.color!!,ignoreCase=true) }
+                carsFilterList= getAlCarAvailble(json).let {list->
+                    list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!)||it.color.equals(item.color!!,ignoreCase=true) }
                 }
                 // todoItems.value=SearchStatus(carsFilterList,null)
-                todoItems.swapList(carsFilterList!!)
+                carsmodelList.swapList(carsFilterList!!)
 
-                // _suggestedDestinations.value=SearchStatus(carsFilterList,null)
-         //   }
+
+        }
+            // search with price
+            else if (item.unitPrice!!.length!=0){
+                carsFilterList= getAlCarAvailble(json).let {list->
+                    list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!) }
+                }
+                carsmodelList.swapList(carsFilterList!!)
+
+            }
+            else if (!item.color.isNullOrEmpty()){
+                carsFilterList= getAlCarAvailble(json).let {list->
+                    list.filter { it.color.equals(item.color!!,ignoreCase=true) }
+                }
+                carsmodelList.swapList(carsFilterList!!)
+
+            }else{
+                carsFilterList= getAlCarAvailble(json)
+                carsmodelList.swapList(carsFilterList!!)
+
+            }
+
         }
 
 
@@ -64,11 +84,11 @@ class SearchViewModel: ViewModel() {
                 when(responseSuccess.status?.code){
                     200->{
                        // _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
-                        todoItems.swapList(responseSuccess.cars!!)
+                        carsmodelList.swapList(responseSuccess.cars!!)
                         return  responseSuccess.cars!!
                     }
                     204->{
-                        _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
+                      //  _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
 
                     }
                     else->{
@@ -83,12 +103,16 @@ class SearchViewModel: ViewModel() {
 
 
     }
-    suspend fun  readData(){}
 
     fun convertJsonStringToObject(jsonString: String?): CarsResponse? {
         val gson = Gson()
         if (jsonString.isNullOrBlank()) return  null
         return gson.fromJson(jsonString, CarsResponse::class.java)
+
+    }
+    fun getCarModelToNavigate(carModel:Carmodel,screenName:String){
+        carmodelsState.value=carModel
+        screenNameState.value=screenName
 
     }
     fun <T> SnapshotStateList<T>.swapList(newList: List<T>){
