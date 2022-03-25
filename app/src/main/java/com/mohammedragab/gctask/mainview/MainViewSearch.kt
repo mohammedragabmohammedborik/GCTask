@@ -148,8 +148,8 @@ fun SearchInputPrice(
                 text = text,
                 onTextChange = onTextChange,
                 modifier = Modifier
-                    .padding(end = 8.dp)
-                    .width(150.dp),
+                    .padding(end = 4.dp)
+                    .width(120.dp),
                 onImeAction = submit
             )
 
