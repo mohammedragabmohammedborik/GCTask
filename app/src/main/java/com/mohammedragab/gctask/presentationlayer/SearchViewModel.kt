@@ -1,69 +1,56 @@
 package com.mohammedragab.gctask.presentationlayer
-
 import android.util.Log
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.mohammedragab.gctask.R
 import com.mohammedragab.gctask.data.Carmodel
 import com.mohammedragab.gctask.data.CarsResponse
 import com.mohammedragab.gctask.data.SearchRequest
-import com.mohammedragab.gctask.data.SearchStatus.GenralStatus
-import com.mohammedragab.gctask.data.SearchStatus.SearchStatus
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.mohammedragab.gctask.utility.Utilities
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
-
 
 class SearchViewModel: ViewModel() {
-//    private var _availableCarList= MutableLiveData(SearchStatus())
-//    val availableCarList: LiveData<SearchStatus> = _availableCarList
     var carsmodelList = mutableStateListOf<Carmodel>()
         private set
-    var carmodelsState = mutableStateOf<Carmodel>(Carmodel("","","",0,"",0.0))
+
+    var messageEmptyData by mutableStateOf<String>("")
         private set
-    var screenNameState= mutableStateOf<String>("")
 
-    // event: addItem
+    fun updateCheckForEmptyData(message:String){
+        messageEmptyData=message
+    }
+
+    // here is a search for all conditions
+    // and check if empty list we should call to get response if empty data
     fun searchForAvailableCar(item: SearchRequest,json:String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             Log.w("TAG", "TV: ${item}")
-
-          var   carsFilterList= listOf<Carmodel>()
-
+            val carsFilterList: List<Carmodel>
             // search with price and color
-            if (item.unitPrice!!.length!=0 && item.color!="SelectColor"){
-                
+            if (item.unitPrice!!.isNotEmpty() && item.color!=Utilities.SELECTCOLOR){
                 carsFilterList= getAlCarAvailble(json).let {list->
                     list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!)||it.color.equals(item.color!!,ignoreCase=true) }
                 }
-                // todoItems.value=SearchStatus(carsFilterList,null)
                 carsmodelList.swapList(carsFilterList!!)
-
-
-        }
+            }
             // search with price
-            else if (item.unitPrice!!.length!=0){
+            else if (item.unitPrice!!.isNotEmpty()){
                 carsFilterList= getAlCarAvailble(json).let {list->
                     list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!) }
                 }
                 carsmodelList.swapList(carsFilterList!!)
 
+
             }
-            else if (!item.color.isNullOrEmpty()){
+            else if (item.color!=Utilities.SELECTCOLOR &&item.unitPrice!!.isNotEmpty() ){
                 carsFilterList= getAlCarAvailble(json).let {list->
-                    list.filter { it.color.equals(item.color!!,ignoreCase=true) }
+                    list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!) }
                 }
                 carsmodelList.swapList(carsFilterList!!)
 
@@ -83,25 +70,18 @@ class SearchViewModel: ViewModel() {
             if (responseSuccess!=null){
                 when(responseSuccess.status?.code){
                     200->{
-                       // _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
                         carsmodelList.swapList(responseSuccess.cars!!)
+                        messageEmptyData=""
                         return  responseSuccess.cars!!
                     }
                     204->{
-                      //  _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
-
-                    }
-                    else->{
-
+                        messageEmptyData= responseSuccess.status?.let {  "cmcmcmcmcmccmcmcm"}.toString()
                     }
 
                 }
-            
+
         }
-
         return listOf()
-
-
     }
 
     fun convertJsonStringToObject(jsonString: String?): CarsResponse? {
@@ -110,11 +90,8 @@ class SearchViewModel: ViewModel() {
         return gson.fromJson(jsonString, CarsResponse::class.java)
 
     }
-    fun getCarModelToNavigate(carModel:Carmodel,screenName:String){
-        carmodelsState.value=carModel
-        screenNameState.value=screenName
 
-    }
+    // extention function
     fun <T> SnapshotStateList<T>.swapList(newList: List<T>){
         clear()
         addAll(newList)

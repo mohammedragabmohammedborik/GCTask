@@ -8,5 +8,5 @@ data class Carmodel(
     val currency: String,
     val model: Int,
     val plate_number: String,
-    val unit_price: Double
+    val unit_price: Float
 ):Serializable

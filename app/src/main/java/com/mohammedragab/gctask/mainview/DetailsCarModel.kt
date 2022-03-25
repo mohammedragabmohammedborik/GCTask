@@ -27,7 +27,6 @@ fun DetailsCarModel(carmodel: Carmodel){
 
             Row(
                 modifier = Modifier
-                    .padding(4.dp)
                     .weight(1.0f, false)){
                 Text(text = stringResource(R.string.unit_price),fontWeight = FontWeight.Black)
                 Text(
@@ -36,7 +35,7 @@ fun DetailsCarModel(carmodel: Carmodel){
             }
             Row(
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(2.dp)
                     .weight(1.0f), horizontalArrangement = Arrangement.End){
                 Text(text = stringResource(R.string.car_color),fontWeight = FontWeight.Black)
                 Text(
@@ -46,7 +45,7 @@ fun DetailsCarModel(carmodel: Carmodel){
             }
         Row(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(2.dp)
                 .weight(1.0f), horizontalArrangement = Arrangement.End){
             Text(text = stringResource(R.string.currency),fontWeight = FontWeight.Black)
             Text(
@@ -56,7 +55,7 @@ fun DetailsCarModel(carmodel: Carmodel){
         }
         Row(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(2.dp)
                 .weight(1.0f), horizontalArrangement = Arrangement.End){
             Text(text = stringResource(R.string.model),fontWeight = FontWeight.Black)
             Text(
@@ -66,7 +65,7 @@ fun DetailsCarModel(carmodel: Carmodel){
         }
         Row(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(2.dp)
                 .weight(1.0f), horizontalArrangement = Arrangement.End){
             Text(text = stringResource(R.string.plate_number),fontWeight = FontWeight.Black)
             Text(

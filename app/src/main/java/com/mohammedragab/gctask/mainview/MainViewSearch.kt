@@ -16,19 +16,22 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mohammedragab.gctask.data.Carmodel
 import com.mohammedragab.gctask.data.SearchRequest
+import com.mohammedragab.gctask.utility.Utilities
 
 
 @Composable
 fun CarItem(carmodel: Carmodel,onclick:()->Unit){
     Card(
         backgroundColor = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp).
-        clickable(onClick = onclick)
+        modifier = Modifier
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .clickable(onClick = onclick)
 
     ) {
         ItemContent(carmodel)
@@ -91,20 +94,21 @@ fun ItemContent(carmodel: Carmodel){
 }
 
 @Composable
-fun ItemList(carModelList:List<Carmodel>,colorList:List<String>,
-             onButtonSearchClicked: (SearchRequest) -> Unit,onItemClicked: (Carmodel,String) -> Unit) {
+fun ItemList(carModelList:List<Carmodel>,colorList:List<String>,buttonText: String,
+             onButtonSearchClicked: (SearchRequest) -> Unit,onItemClicked: (Carmodel) -> Unit,checkItem: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()){
-        TodoItemEntryInput(colorList = colorList, onButtonSearchClicked = onButtonSearchClicked)
+        TodoItemEntryInput(colorList = colorList, onButtonSearchClicked = onButtonSearchClicked, buttonText =buttonText )
 
+        if (carModelList.isEmpty()){
+               // checkItem("no cars available")
+        }
         LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
 
             items(items = carModelList) { carModel ->
-                CarItem(carmodel = carModel, onclick ={onItemClicked(carModel,
-                                   "CarModelDetails"
-                                ) })
+                CarItem(carmodel = carModel, onclick ={onItemClicked(carModel) })
             }
         }
     }
@@ -114,12 +118,12 @@ fun ItemList(carModelList:List<Carmodel>,colorList:List<String>,
 @Composable
 fun TodoItemEntryInput(colorList:List<String>, onButtonSearchClicked: (SearchRequest) -> Unit, buttonText: String = "Search") {
     val (text, onTextChange) = rememberSaveable { mutableStateOf("") }
-    val (selectedColor,onSelectedItem) = rememberSaveable{ mutableStateOf("SelectColor") }
+    val (selectedColor,onSelectedItem) = rememberSaveable{ mutableStateOf(Utilities.SELECTCOLOR) }
 
     val submit = {
         onButtonSearchClicked(SearchRequest(text, selectedColor))
          //   onTextChange("")
-       // onSelectedItem("SelectColor")
+       onSelectedItem(Utilities.SELECTCOLOR)
     }
     Row(Modifier.fillMaxWidth()) {
         SearchInputPrice(
@@ -144,7 +148,8 @@ fun SearchInputPrice(
                 text = text,
                 onTextChange = onTextChange,
                 modifier = Modifier
-                    .padding(end = 8.dp).width(150.dp),
+                    .padding(end = 8.dp)
+                    .width(150.dp),
                 onImeAction = submit
             )
 
@@ -182,6 +187,10 @@ fun ColorSelection(colorList:List<String>,selectedColor:String,onSelectedItem:(S
         }
 
     }
+}
 
-
+@Composable
+fun ShowEmptyMessage(meesage:String) {
+    Log.w("TAG", "ShowEmptyMessage:$meesage " )
+        Text(text=meesage,fontWeight = FontWeight.Black)
 }

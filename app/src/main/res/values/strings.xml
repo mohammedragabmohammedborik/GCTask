@@ -6,6 +6,9 @@
     <string name="model">"Model: "</string>
     <string name="plate_number">"PlateNumber: "</string>
     <string name="car_model_details">CarModelDetails</string>
+    <string name="booking_search">BookingSearch</string>
+    <string name="search">Search</string>
+    <string name="not_availble_car">no cars available</string>
 
 
 </resources>
