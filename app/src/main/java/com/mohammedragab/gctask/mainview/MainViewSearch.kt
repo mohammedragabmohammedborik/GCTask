@@ -114,6 +114,8 @@ fun ItemList(carModelList:List<Carmodel>,colorList:List<String>, onButtonSearchC
 fun TodoItemEntryInput(colorList:List<String>, onButtonSearchClicked: (SearchRequest) -> Unit, buttonText: String = "Search") {
     val (text, onTextChange) = rememberSaveable { mutableStateOf("") }
     val (selectedColor,onSelectedItem) = rememberSaveable{ mutableStateOf("SelectColor") }
+
+   // val (x,y)=rememberSaveable { mutableStateOf("") }
     val submit = {
         onButtonSearchClicked(SearchRequest(text, selectedColor))
          //   onTextChange("")

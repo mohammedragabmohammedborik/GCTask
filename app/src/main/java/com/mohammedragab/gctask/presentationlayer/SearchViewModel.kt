@@ -4,11 +4,15 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.mohammedragab.gctask.R
 import com.mohammedragab.gctask.data.Carmodel
 import com.mohammedragab.gctask.data.CarsResponse
 import com.mohammedragab.gctask.data.SearchRequest
@@ -36,53 +40,32 @@ class SearchViewModel: ViewModel() {
     // event: addItem
     fun searchForAvailableCar(item: SearchRequest,json:String) {
         viewModelScope.launch {
-            val responseSuccess=convertJsonStringToObject(json)
-            if (responseSuccess!=null){
-                when(responseSuccess.status?.code){
-                    200->{
-                        //todoItems.removeAll(carsFilterList)
-                        if (item.unitPrice!!.length!=0){
-                            Log.w("", "searchForAvailableCar:1 ${responseSuccess.cars} " )
-                           val carsFilterList= responseSuccess.cars?.let {
-                               it.filter { it.unit_price.toString().contains(item.unitPrice) }
-                           }
-                            Log.w("TAG", "TV: ${carsFilterList}")
-                           // todoItems.value=SearchStatus(carsFilterList,null)
-                            todoItems.addAll(carsFilterList!!)
-
-                            // _suggestedDestinations.value=SearchStatus(carsFilterList,null)
-                        }
+            Log.w("TAG", "TV: ${item}")
 
 
-                    }
-                    204->{
-                        _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
-
-                    }
-                    else->{
-
-                    }
-
+           // if (item.unitPrice!!.length!=0 || item.color!="SelectColor"){
+                
+                val carsFilterList= getAlCarAvailble(json).let {list->
+                    list.filter { it.unit_price.toString().trim().contains(item.unitPrice!!)||it.color.contains(item.color!!,ignoreCase=true) }
                 }
-            }
-        }
+                // todoItems.value=SearchStatus(carsFilterList,null)
+                todoItems.swapList(carsFilterList!!)
 
+                // _suggestedDestinations.value=SearchStatus(carsFilterList,null)
+         //   }
+        }
 
 
     }
     //
-    fun getAlCarAvailble(json:String) {
-
-        viewModelScope.launch {
+    fun getAlCarAvailble(json:String):List<Carmodel> {
             val responseSuccess=convertJsonStringToObject(json)
             if (responseSuccess!=null){
                 when(responseSuccess.status?.code){
                     200->{
                        // _suggestedDestinations.value=SearchStatus(responseSuccess.cars,null)
-                        todoItems.addAll(responseSuccess.cars!!)
-
-
-
+                        todoItems.swapList(responseSuccess.cars!!)
+                        return  responseSuccess.cars!!
                     }
                     204->{
                         _suggestedDestinations.value=SearchStatus(null,responseSuccess.status.message)
@@ -93,21 +76,24 @@ class SearchViewModel: ViewModel() {
                     }
 
                 }
-            }
+            
         }
 
+        return listOf()
 
 
     }
-    suspend fun  readData(){
-
-    }
+    suspend fun  readData(){}
 
     fun convertJsonStringToObject(jsonString: String?): CarsResponse? {
         val gson = Gson()
         if (jsonString.isNullOrBlank()) return  null
         return gson.fromJson(jsonString, CarsResponse::class.java)
 
+    }
+    fun <T> SnapshotStateList<T>.swapList(newList: List<T>){
+        clear()
+        addAll(newList)
     }
 
 }

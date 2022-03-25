@@ -11,8 +11,10 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.mohammedragab.gctask.data.Carmodel
 import com.mohammedragab.gctask.data.SearchRequest
@@ -56,7 +58,9 @@ fun SearchScreen(searchViewModel: SearchViewModel){
         it.readText()
     }
 
-    searchViewModel.getAlCarAvailble(json_string)
+    rememberSaveable{
+        mutableListOf(searchViewModel.getAlCarAvailble(json_string))
+    }
 
     //val response=  searchViewModel.convertJsonStringToObject(json_string)
   val suggestedDestinations  by searchViewModel.suggestedDestinations.collectAsState()

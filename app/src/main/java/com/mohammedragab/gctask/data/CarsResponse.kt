@@ -1,3 +1,5 @@
 package com.mohammedragab.gctask.data
 
-data class CarsResponse(val status:Status?=null,val cars:List<Carmodel>?=null)
+import java.io.Serializable
+
+data class CarsResponse(val status:Status?=null,val cars:List<Carmodel>?=null):Serializable
